@@ -86,18 +86,19 @@ module.exports = app => {
                 .db("test2")
                 .collection("library")
                 .findOne({ _id: ObjectId(bookid) });
-              //.toArray();
             })
             .then(book => {
-              //book = book[0];
               client
                 .db("test2")
                 .collection(String(book._id))
-                .find({})
+                .find({}, { projection: { _id: 0 } })
                 .toArray((err, comments) => {
                   if (err) throw err;
                   delete book.commentcount;
-                  book.comments = comments;
+                  book.comments = comments
+                    .map(o => Object.values(o))
+                    .join()
+                    .split(",");
                   client.close();
                   res.json(book);
                 });
@@ -148,8 +149,7 @@ module.exports = app => {
                   .toArray()
               ]);
             })
-            .then(([book, null]) => {
-              console.log(comments);
+            .then(([book, comments]) => {
               client
                 .db("test2")
                 .collection("library")
