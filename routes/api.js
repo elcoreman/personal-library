@@ -63,7 +63,6 @@ module.exports = app => {
           .collection("library")
           .findOne({ _id: ObjectId(bookid) })
           .then(book => {
-            if (err) throw err;
             if (!book) {
               res.send("no book exists");
               throw null;
@@ -72,11 +71,10 @@ module.exports = app => {
               .db("test2")
               .collection("library")
               .findOne({ _id: ObjectId(bookid) });
-              //.toArray();
+            //.toArray();
           })
           .then(book => {
             //book = book[0];
-            if (err) throw err;
             client
               .db("test2")
               .collection(String(book._id))
@@ -101,37 +99,30 @@ module.exports = app => {
       var comment = req.body.comment;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        client
+        return client
           .db("test2")
           .collection("library")
-          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
-            if (err) throw err;
-            if (!book) res.send("no book exists");
-            return book;
-          })
+          .findOne({ _id: ObjectId(bookid) })
           .then(book => {
-            client
+            if (!book) {
+              res.send("no book exists");
+              throw null;
+            }
+            return client
               .db("test2")
-              .collection(bookid)
-              .insertOne({ comment }, (err, result) => {
-                if (err) throw err;
-                return result;
-              });
+              .collection(String(bookid))
+              .insertOne({ comment });
           })
           .then(result => {
             return client
               .db("test2")
               .collection("library")
-              .find({ _id: ObjectId(bookid) }, (err, book) => {
-                if (err) throw err;
-                return book;
-              });
+              .find({ _id: ObjectId(bookid) });
           })
-          .then((err, book) => {
-            if (err) throw err;
+          .then(book => {
             client
               .db("test2")
-              .collection(book._id)
+              .collection(String(book._id))
               .find({})
               .toArray((err, comments) => {
                 if (err) throw err;
@@ -139,8 +130,11 @@ module.exports = app => {
                 client.close();
                 res.json(book);
               });
+          })
+          .catch(err => {
+            console.log("catch", err);
+            if (err) res.status(500).json({ error: err });
           });
-        //.catch(err => console.log(err));
       });
     })
 
