@@ -28,7 +28,7 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .insertOne({ title: req.body.title }, (err, book) => {
+          .insertOne({ title: req.body.title, comments: 0 }, (err, book) => {
             if (err) throw err;
             db.close();
             res.json({ title: book.title, _id: book._id });
@@ -39,7 +39,7 @@ module.exports = app => {
     .delete((req, res) => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
-        db.db("test2").drop((err, res) => {
+        db.dropDatabase("test2", (err, res) => {
           if (err) throw err;
           db.close();
           res.send("complete delete successful");
@@ -55,9 +55,18 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .find({ _id: ObjectId(bookid) }, (err, book) => {
+          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
+            if (!book) res.send("no book exists");
             return book;
+          })
+          .then(book => {
+            db.db("test2")
+              .collection("library")
+              .find({ _id: ObjectId(bookid) }, (err, book) => {
+                if (err) throw err;
+                return book;
+              });
           })
           .then(book => {
             //if book
@@ -80,10 +89,19 @@ module.exports = app => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
         db.db("test2")
-          .collection(bookid)
-          .insertOne({ comment }, (err, result) => {
+          .collection("library")
+          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
-            return result;
+            if (!book) res.send("no book exists");
+            return book;
+          })
+          .then(book => {
+            db.db("test2")
+              .collection(bookid)
+              .insertOne({ comment }, (err, result) => {
+                if (err) throw err;
+                return result;
+              });
           })
           .then(result => {
             return db
