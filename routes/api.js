@@ -68,9 +68,11 @@ module.exports = app => {
             return client
               .db("test2")
               .collection("library")
-              .find({ _id: ObjectId(bookid) }).toArray();
+              .find({ _id: ObjectId(bookid) })
+              .toArray();
           })
           .then(book => {
+            book = book[0];
             //if (err) throw err;
             console.log(book);
             client
@@ -79,6 +81,7 @@ module.exports = app => {
               .find({})
               .toArray((err, comments) => {
                 //if (err) throw err;
+                delete book.commentcount;
                 book.comments = comments;
                 client.close();
                 res.json(book);
