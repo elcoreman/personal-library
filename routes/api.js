@@ -38,10 +38,12 @@ module.exports = app => {
 
     .delete((req, res) => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
-        if (err) throw err;
-        db.dropDatabase("test2", (err, res) => {
-          if (err) throw err;
-          db.close();
+        console.log("error: ", err);
+        //if (err) throw err;
+        db.db("test2").drop((err, res) => {
+          console.log("error: ", err);
+          //if (err) throw err;
+          //db.close();
           res.send("complete delete successful");
         });
       });

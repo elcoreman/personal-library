@@ -11,13 +11,13 @@ const runner = require("./test-runner");
 
 const app = express();
 
-/*app.use(
+app.use(
   helmet({
     hidePoweredBy: {
       setTo: "PHP 4.2.0"
     }
   })
-);*/
+);
 
 app.use("/public", express.static(process.cwd() + "/public"));
 
