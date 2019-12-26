@@ -16,6 +16,7 @@ module.exports = app => {
           .find({})
           .toArray((err, books) => {
             if (err) throw err;
+            db.close();
             res.json(books);
           });
       });
@@ -29,6 +30,7 @@ module.exports = app => {
           .collection("library")
           .insertOne({ title: req.body.title }, (err, book) => {
             if (err) throw err;
+            db.close();
             res.json({ title: book.title, _id: book._id });
           });
       });
@@ -39,6 +41,7 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2").drop((err, res) => {
           if (err) throw err;
+          db.close();
           res.send("complete delete successful");
         });
       });
@@ -52,17 +55,19 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .find({ _id: bookid }, (err, book) => {
+          .find({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
             return book;
           })
           .then(book => {
+            //if book
             db.db("test2")
               .collection(book._id)
               .find({})
               .toArray((err, comments) => {
                 if (err) throw err;
                 book.comments = comments;
+                db.close();
                 res.json(book);
               });
           });
@@ -84,7 +89,7 @@ module.exports = app => {
             return db
               .db("test2")
               .collection("library")
-              .find({ _id: bookid }, (err, book) => {
+              .find({ _id: ObjectId(bookid) }, (err, book) => {
                 if (err) throw err;
                 return book;
               });
@@ -96,14 +101,16 @@ module.exports = app => {
               .find({})
               .toArray((err, comments) => {
                 if (err) throw err;
-              
+                book.comments = comments;
+                db.close();
+                res.json(book);
               });
           });
+        //.catch(err => console.log(err));
       });
     })
 
     .delete((req, res) => {
       var bookid = req.params.id;
-      //if successful response will be 'delete successful'
     });
 };
