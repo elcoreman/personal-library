@@ -14,6 +14,18 @@ module.exports = function(app) {
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
         if (err) throw err;
+        db.db("test")
+          .collection("library")
+          .find({})
+          .toArray((err, books) => {
+            if (err) throw err;
+            return books;
+          })
+          .then(books => {
+          db.db("test")
+          .collection("libraryComments")
+          .find({bookId: books.})
+        });
       });
     })
 
