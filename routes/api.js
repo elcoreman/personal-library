@@ -58,22 +58,17 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
+          .findOne({ _id: ObjectId(bookid) })
+          .then((book, err) => {
             if (err) throw err;
             if (!book) res.send("no book exists");
-            //console.log(book);
-            //res.send("aaaawsdxf");
-            return book;
-          })
-          .then(book => {
-            db.db("test2")
+            return db
+              .db("test2")
               .collection("library")
-              .find({ _id: ObjectId(bookid) }, (err, book) => {
-                if (err) throw err;
-                return book;
-              });
+              .find({ _id: ObjectId(bookid) });
           })
-          .then(book => {
+          .then((book, err) => {
+            if (err) throw err;
             db.db("test2")
               .collection(book._id)
               .find({})
@@ -83,7 +78,8 @@ module.exports = app => {
                 db.close();
                 res.json(book);
               });
-          });
+          })
+          .catch(err => res.status(500).json({ error: err }));
       });
     })
 
