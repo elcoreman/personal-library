@@ -117,7 +117,7 @@ module.exports = app => {
             return client
               .db("test2")
               .collection("library")
-              .find({ _id: ObjectId(bookid) });
+              .findOne({ _id: ObjectId(bookid) });
           })
           .then(book => {
             client
