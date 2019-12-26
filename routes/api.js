@@ -3,7 +3,7 @@
 var expect = require("chai").expect;
 var MongoClient = require("mongodb").MongoClient;
 var ObjectId = require("mongodb").ObjectId;
-const MONGODB_CONNECTION_STRING = process.env.DB;
+const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
 //Example connection: MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {});
 
 module.exports = function(app) {
@@ -12,6 +12,9 @@ module.exports = function(app) {
     .get(function(req, res) {
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
+      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+        if (err) throw err;
+      });
     })
 
     .post(function(req, res) {
