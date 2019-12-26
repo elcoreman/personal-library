@@ -75,9 +75,8 @@ module.exports = app => {
               //.toArray();
           })
           .then(book => {
-            book = book[0];
+            //book = book[0];
             if (err) throw err;
-            console.log(book);
             client
               .db("test2")
               .collection(String(book._id))
