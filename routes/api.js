@@ -112,5 +112,31 @@ module.exports = app => {
 
     .delete((req, res) => {
       var bookid = req.params.id;
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+        if (err) throw err;
+        db.db("test2")
+          .collection("library")
+          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
+            if (err) throw err;
+            if (!book) res.send("no book exists");
+            return book;
+          })
+          .then(book => {
+            db.db("test2")
+              .collection("library")
+              .deleteOne({ _id: ObjectId(bookid) }, (err, result) => {
+                if (err) throw err;
+                return result;
+              });
+          })
+          .then(result => {
+            db.db("test2")
+              .collection(bookid)
+              .drop((err, result) => {
+                if (err) throw err;
+                res.send("delete successful");
+              });
+          });
+      });
     });
 };
