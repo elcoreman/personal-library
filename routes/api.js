@@ -40,7 +40,7 @@ module.exports = app => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         console.log("error: ", err);
         //if (err) throw err;
-        db.db("test2").drop((err, res) => {
+        db.dropDatabase("test2", (err, res) => {
           console.log("error: ", err);
           //if (err) throw err;
           //db.close();
