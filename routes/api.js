@@ -190,19 +190,36 @@ module.exports = app => {
                 res.send("no book exists");
                 throw null;
               }
-              return client
+              return Promise.all([
+                book,
+                client
+                  .db("test2")
+                  .collection("library")
+                  .deleteOne({ _id: ObjectId(bookid) })
+              ]);
+            })
+            .then(([book, result]) => {
+              return Promise.all([
+                book,
+                client
+                  .db("test2")
+                  .collection(bookid)
+                  .drop()
+              ]);
+            })
+            .then(([book, result]) => {
+              client
                 .db("test2")
                 .collection("library")
-                .deleteOne({ _id: ObjectId(bookid) });
-            })
-            .then(result => {
-              return client
-                .db("test2")
-                .collection(bookid)
-                .drop();
-            })
-            .then(result => {
-              res.send("delete successful");
+                .updateOne(
+                  { _id: ObjectId(book._id) },
+                  { $inc: { commentcount: -1 } },
+                  (err, result) => {
+                    if (err) throw err;
+                    client.close();
+                    res.send("delete successful");
+                  }
+                );
             })
             .catch(err => {
               console.log("catch", err);
