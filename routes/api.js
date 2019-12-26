@@ -57,14 +57,17 @@ module.exports = app => {
     .get((req, res) => {
       var bookid = req.params.id;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
-        //if (err) throw err;
+        if (err) throw err;
         client
           .db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) })
           .then(book => {
-            //if (err) throw err;
-            if (!book) res.send("no book exists");
+            if (err) throw err;
+            if (!book) {
+              res.send("no book exists");
+              return Promise.reject("eeeeee");
+            }
             return client
               .db("test2")
               .collection("library")
@@ -73,21 +76,24 @@ module.exports = app => {
           })
           .then(book => {
             book = book[0];
-            //if (err) throw err;
+            if (err) throw err;
             console.log(book);
             client
               .db("test2")
               .collection(String(book._id))
               .find({})
               .toArray((err, comments) => {
-                //if (err) throw err;
+                if (err) throw err;
                 delete book.commentcount;
                 book.comments = comments;
                 client.close();
                 res.json(book);
               });
+          })
+          .catch(err => {
+            console.log("catch", err);
+            //res.status(500).json({ error: err });
           });
-        //.catch(err => res.status(500).json({ error: err }));
       });
     })
 
