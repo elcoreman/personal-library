@@ -11,7 +11,8 @@ module.exports = app => {
     .get((req, res) => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        client.db("test2")
+        client
+          .db("test2")
           .collection("library")
           .find({})
           .toArray((err, books) => {
@@ -26,7 +27,8 @@ module.exports = app => {
       var title = req.body.title;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        client.db("test2")
+        client
+          .db("test2")
           .collection("library")
           .insertOne(
             { title: req.body.title, commentcount: 0 },
@@ -55,32 +57,34 @@ module.exports = app => {
     .get((req, res) => {
       var bookid = req.params.id;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
-        if (err) throw err;
-        client.db("test2")
+        //if (err) throw err;
+        client
+          .db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) })
-          .then((book, err) => {
-            if (err) throw err;
+          .then(book => {
+            //if (err) throw err;
             if (!book) res.send("no book exists");
             return client
               .db("test2")
               .collection("library")
               .find({ _id: ObjectId(bookid) });
           })
-          .then((book, err) => {
-            if (err) throw err;
-          console.log(book);
-            client.db("test2")
-              .collection(book._id)
+          .then(book => {
+            //if (err) throw err;
+            console.log(book);
+            client
+              .db("test2")
+              .collection(String(book._id))
               .find({})
               .toArray((err, comments) => {
-                if (err) throw err;
+                //if (err) throw err;
                 book.comments = comments;
                 client.close();
                 res.json(book);
               });
-          })
-          .catch(err => res.status(500).json({ error: err }));
+          });
+        //.catch(err => res.status(500).json({ error: err }));
       });
     })
 
@@ -89,7 +93,8 @@ module.exports = app => {
       var comment = req.body.comment;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        client.db("test2")
+        client
+          .db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
@@ -97,7 +102,8 @@ module.exports = app => {
             return book;
           })
           .then(book => {
-            client.db("test2")
+            client
+              .db("test2")
               .collection(bookid)
               .insertOne({ comment }, (err, result) => {
                 if (err) throw err;
@@ -115,7 +121,8 @@ module.exports = app => {
           })
           .then((err, book) => {
             if (err) throw err;
-            client.db("test2")
+            client
+              .db("test2")
               .collection(book._id)
               .find({})
               .toArray((err, comments) => {
@@ -133,7 +140,8 @@ module.exports = app => {
       var bookid = req.params.id;
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        client.db("test2")
+        client
+          .db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
@@ -141,7 +149,8 @@ module.exports = app => {
             return book;
           })
           .then(book => {
-            client.db("test2")
+            client
+              .db("test2")
               .collection("library")
               .deleteOne({ _id: ObjectId(bookid) }, (err, result) => {
                 if (err) throw err;
@@ -149,7 +158,8 @@ module.exports = app => {
               });
           })
           .then(result => {
-            client.db("test2")
+            client
+              .db("test2")
               .collection(bookid)
               .drop((err, result) => {
                 if (err) throw err;
