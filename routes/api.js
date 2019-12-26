@@ -5,25 +5,36 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
 
-module.exports = function(app) {
+module.exports = app => {
   app
     .route("/api/books")
-    .get(function(req, res) {
-      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+    .get((req, res) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
           .find({})
           .toArray((err, books) => {
             if (err) throw err;
+            return books;
+          })
+          .then(books => {
+            books.forEach(book => {
+              db.db("test2")
+                .collection(book._id)
+                .count((err, count) => {
+                  if (err) throw err;
+                  book[].commentcount = count;
+                });
+            });
             res.json(books);
           });
       });
     })
 
-    .post(function(req, res) {
+    .post((req, res) => {
       var title = req.body.title;
-      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
@@ -34,8 +45,8 @@ module.exports = function(app) {
       });
     })
 
-    .delete(function(req, res) {
-      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+    .delete((req, res) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
         db.db("test2").drop((err, res) => {
           if (err) throw err;
@@ -46,27 +57,36 @@ module.exports = function(app) {
 
   app
     .route("/api/books/:id")
-    .get(function(req, res) {
+    .get((req, res) => {
       var bookid = req.params.id;
-      //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
           .find({ _id: bookid }, (err, book) => {
             if (err) throw err;
             return book;
-          }).then();
+          })
+          .then(book => {
+            db.db("test2")
+              .collection(book._id)
+              .find({})
+              .toArray((err, comments) => {
+                if (err) throw err;
+                book.comments = comments;
+                res.json(book);
+              });
+          });
       });
     })
 
-    .post(function(req, res) {
+    .post((req, res) => {
       var bookid = req.params.id;
       var comment = req.body.comment;
       //json res format same as .get
     })
 
-    .delete(function(req, res) {
+    .delete((req, res) => {
       var bookid = req.params.id;
       //if successful response will be 'delete successful'
     });
