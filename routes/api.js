@@ -1,41 +1,49 @@
 "use strict";
 
-var expect = require("chai").expect;
-var MongoClient = require("mongodb").MongoClient;
-var ObjectId = require("mongodb").ObjectId;
+const expect = require("chai").expect;
+const MongoClient = require("mongodb").MongoClient;
+const ObjectId = require("mongodb").ObjectId;
 const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
-//Example connection: MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {});
 
 module.exports = function(app) {
   app
     .route("/api/books")
     .get(function(req, res) {
-      //response will be array of book objects
-      //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
         if (err) throw err;
-        db.db("test")
+        db.db("test2")
           .collection("library")
           .find({})
           .toArray((err, books) => {
             if (err) throw err;
-            return books;
-          })
-          .then(books => {
-          db.db("test")
-          .collection("libraryComments")
-          .find({bookId: books.})
-        });
+            res.json(books);
+          });
       });
     })
 
     .post(function(req, res) {
       var title = req.body.title;
-      //response will contain new book object including atleast _id and title
+      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+        if (err) throw err;
+        db.db("test2")
+          .collection("library")
+          .insertOne({ title: req.body.title }, (err, book) => {
+            if (err) throw err;
+            res.json({ title: book.title, _id: book._id });
+          });
+      });
     })
 
     .delete(function(req, res) {
-      //if successful response will be 'complete delete successful'
+      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+        if (err) throw err;
+        db.db("test2")
+          .collection("library")
+          .delete({ }, (err, book) => {
+            if (err) throw err;
+            res.json({ title: book.title, _id: book._id });
+          });
+      });
     });
 
   app
