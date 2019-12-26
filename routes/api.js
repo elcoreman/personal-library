@@ -66,13 +66,13 @@ module.exports = app => {
             if (err) throw err;
             if (!book) {
               res.send("no book exists");
-              return Promise.reject("eeeeee");
+              throw null;
             }
             return client
               .db("test2")
               .collection("library")
-              .find({ _id: ObjectId(bookid) })
-              .toArray();
+              .findOne({ _id: ObjectId(bookid) });
+              //.toArray();
           })
           .then(book => {
             book = book[0];
@@ -92,7 +92,7 @@ module.exports = app => {
           })
           .catch(err => {
             console.log("catch", err);
-            //res.status(500).json({ error: err });
+            if (err) res.status(500).json({ error: err });
           });
       });
     })
