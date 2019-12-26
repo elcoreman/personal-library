@@ -16,17 +16,6 @@ module.exports = app => {
           .find({})
           .toArray((err, books) => {
             if (err) throw err;
-            return books;
-          })
-          .then(books => {
-            books.forEach(book => {
-              db.db("test2")
-                .collection(book._id)
-                .count((err, count) => {
-                  if (err) throw err;
-                  book[].commentcount = count;
-                });
-            });
             res.json(books);
           });
       });
@@ -83,7 +72,14 @@ module.exports = app => {
     .post((req, res) => {
       var bookid = req.params.id;
       var comment = req.body.comment;
-      //json res format same as .get
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+        if (err) throw err;
+        db.db("test2")
+          .collection(bookid)
+          .insertOne({ comment }, (err, result) => {
+          
+        });
+      });
     })
 
     .delete((req, res) => {
