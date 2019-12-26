@@ -77,8 +77,28 @@ module.exports = app => {
         db.db("test2")
           .collection(bookid)
           .insertOne({ comment }, (err, result) => {
-          
-        });
+            if (err) throw err;
+            return result;
+          })
+          .then(result => {
+            return db
+              .db("test2")
+              .collection("library")
+              .find({ _id: bookid }, (err, book) => {
+                if (err) throw err;
+                return book;
+              });
+          })
+          .then((err, book) => {
+            if (err) throw err;
+            db.db("test2")
+              .collection(book._id)
+              .find({})
+              .toArray((err, comments) => {
+                if (err) throw err;
+              
+              });
+          });
       });
     })
 
