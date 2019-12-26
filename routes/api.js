@@ -37,12 +37,10 @@ module.exports = function(app) {
     .delete(function(req, res) {
       MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
         if (err) throw err;
-        db.db("test2")
-          .collection("library")
-          .delete({ }, (err, book) => {
-            if (err) throw err;
-            res.json({ title: book.title, _id: book._id });
-          });
+        db.db("test2").drop((err, res) => {
+          if (err) throw err;
+          res.send("complete delete successful");
+        });
       });
     });
 
@@ -51,6 +49,15 @@ module.exports = function(app) {
     .get(function(req, res) {
       var bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      MongoClient.connect(MONGODB_CONNECTION_STRING, function(err, db) {
+        if (err) throw err;
+        db.db("test2")
+          .collection("library")
+          .find({ _id: bookid }, (err, book) => {
+            if (err) throw err;
+            return book;
+          }).then();
+      });
     })
 
     .post(function(req, res) {
