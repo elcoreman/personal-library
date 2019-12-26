@@ -130,9 +130,16 @@ module.exports = app => {
             ]);
           })
           .then(([book, comments]) => {
-            book.comments = comments;
-            client.close();
-            res.json(book);
+            book.commentcount = book.commentcount + 1;
+            client
+              .db("test2")
+              .collection("library")
+              .updateOne({ _id: ObjectId(book._id) }, { $inc: {commentcount: 1 } }, (err, result) => {
+                if (err) throw err;
+                book.comments = comments;
+                client.close();
+                res.json(book);
+              });
           })
           .catch(err => {
             console.log("catch", err);
