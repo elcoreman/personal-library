@@ -9,14 +9,14 @@ module.exports = app => {
   app
     .route("/api/books")
     .get((req, res) => {
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2")
+        client.db("test2")
           .collection("library")
           .find({})
           .toArray((err, books) => {
             if (err) throw err;
-            db.close();
+            client.close();
             res.json(books);
           });
       });
@@ -24,15 +24,15 @@ module.exports = app => {
 
     .post((req, res) => {
       var title = req.body.title;
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2")
+        client.db("test2")
           .collection("library")
           .insertOne(
             { title: req.body.title, commentcount: 0 },
             (err, book) => {
               if (err) throw err;
-              db.close();
+              client.close();
               res.json({ title: book.title, _id: book._id });
             }
           );
@@ -40,11 +40,11 @@ module.exports = app => {
     })
 
     .delete((req, res) => {
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2").dropDatabase((err, result) => {
+        client.db("test2").dropDatabase((err, result) => {
           if (err) throw err;
-          db.close();
+          client.close();
           res.send("complete delete successful");
         });
       });
@@ -54,28 +54,29 @@ module.exports = app => {
     .route("/api/books/:id")
     .get((req, res) => {
       var bookid = req.params.id;
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2")
+        client.db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) })
           .then((book, err) => {
             if (err) throw err;
             if (!book) res.send("no book exists");
-            return db
+            return client
               .db("test2")
               .collection("library")
               .find({ _id: ObjectId(bookid) });
           })
           .then((book, err) => {
             if (err) throw err;
-            db.db("test2")
+          console.log(book);
+            client.db("test2")
               .collection(book._id)
               .find({})
               .toArray((err, comments) => {
                 if (err) throw err;
                 book.comments = comments;
-                db.close();
+                client.close();
                 res.json(book);
               });
           })
@@ -86,9 +87,9 @@ module.exports = app => {
     .post((req, res) => {
       var bookid = req.params.id;
       var comment = req.body.comment;
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2")
+        client.db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
@@ -96,7 +97,7 @@ module.exports = app => {
             return book;
           })
           .then(book => {
-            db.db("test2")
+            client.db("test2")
               .collection(bookid)
               .insertOne({ comment }, (err, result) => {
                 if (err) throw err;
@@ -104,7 +105,7 @@ module.exports = app => {
               });
           })
           .then(result => {
-            return db
+            return client
               .db("test2")
               .collection("library")
               .find({ _id: ObjectId(bookid) }, (err, book) => {
@@ -114,13 +115,13 @@ module.exports = app => {
           })
           .then((err, book) => {
             if (err) throw err;
-            db.db("test2")
+            client.db("test2")
               .collection(book._id)
               .find({})
               .toArray((err, comments) => {
                 if (err) throw err;
                 book.comments = comments;
-                db.close();
+                client.close();
                 res.json(book);
               });
           });
@@ -130,9 +131,9 @@ module.exports = app => {
 
     .delete((req, res) => {
       var bookid = req.params.id;
-      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
+      MongoClient.connect(MONGODB_CONNECTION_STRING, (err, client) => {
         if (err) throw err;
-        db.db("test2")
+        client.db("test2")
           .collection("library")
           .findOne({ _id: ObjectId(bookid) }, (err, book) => {
             if (err) throw err;
@@ -140,7 +141,7 @@ module.exports = app => {
             return book;
           })
           .then(book => {
-            db.db("test2")
+            client.db("test2")
               .collection("library")
               .deleteOne({ _id: ObjectId(bookid) }, (err, result) => {
                 if (err) throw err;
@@ -148,7 +149,7 @@ module.exports = app => {
               });
           })
           .then(result => {
-            db.db("test2")
+            client.db("test2")
               .collection(bookid)
               .drop((err, result) => {
                 if (err) throw err;
