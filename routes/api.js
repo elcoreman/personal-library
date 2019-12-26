@@ -125,7 +125,7 @@ module.exports = app => {
               client
                 .db("test2")
                 .collection(String(book._id))
-                .find({})
+                .find({}, {comment: 1, _id: 0})
                 .toArray()
             ]);
           })
@@ -134,12 +134,16 @@ module.exports = app => {
             client
               .db("test2")
               .collection("library")
-              .updateOne({ _id: ObjectId(book._id) }, { $inc: {commentcount: 1 } }, (err, result) => {
-                if (err) throw err;
-                book.comments = comments;
-                client.close();
-                res.json(book);
-              });
+              .updateOne(
+                { _id: ObjectId(book._id) },
+                { $inc: { commentcount: 1 } },
+                (err, result) => {
+                  if (err) throw err;
+                  book.comments = comments;
+                  client.close();
+                  res.json(book);
+                }
+              );
           })
           .catch(err => {
             console.log("catch", err);
