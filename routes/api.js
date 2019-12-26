@@ -28,7 +28,7 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .insertOne({ title: req.body.title, comments: 0 }, (err, book) => {
+          .insertOne({ title: req.body.title, commentcount: 0 }, (err, book) => {
             if (err) throw err;
             db.close();
             res.json({ title: book.title, _id: book._id });
@@ -57,7 +57,7 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .findOne({ _id: ObjectId(bookid) }, (err, book) => {
+          .findOne({ _id: bookid }, (err, book) => {
             if (err) throw err;
             if (!book) res.send("no book exists");
             return book;
