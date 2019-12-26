@@ -95,10 +95,9 @@ module.exports = app => {
                 .toArray((err, comments) => {
                   if (err) throw err;
                   delete book.commentcount;
-                  book.comments = comments
-                    .map(o => Object.values(o))
-                    .join()
-                    .split(",");
+                  let cms = [];
+                  comments.forEach(cm => cms.push(cm.comment));
+                  book.comments = cms;
                   client.close();
                   res.json(book);
                 });
@@ -158,7 +157,10 @@ module.exports = app => {
                   { $inc: { commentcount: 1 } },
                   (err, result) => {
                     if (err) throw err;
-                    book.comments = comments;
+                    delete book.commentcount;
+                    let cms = [];
+                    comments.forEach(cm => cms.push(cm.comment));
+                    book.comments = cms;
                     client.close();
                     res.json(book);
                   }
@@ -182,28 +184,29 @@ module.exports = app => {
           client
             .db("test2")
             .collection("library")
-            .findOne({ _id: ObjectId(bookid) }, (err, book) => {
-              if (err) throw err;
-              if (!book) res.send("no book exists");
-              return book;
-            })
+            .findOne({ _id: ObjectId(bookid) })
             .then(book => {
-              client
+              if (!book) {
+                res.send("no book exists");
+                throw null;
+              }
+              return client
                 .db("test2")
                 .collection("library")
-                .deleteOne({ _id: ObjectId(bookid) }, (err, result) => {
-                  if (err) throw err;
-                  return result;
-                });
+                .deleteOne({ _id: ObjectId(bookid) });
             })
             .then(result => {
-              client
+              return client
                 .db("test2")
                 .collection(bookid)
-                .drop((err, result) => {
-                  if (err) throw err;
-                  res.send("delete successful");
-                });
+                .drop();
+            })
+            .then(result => {
+              res.send("delete successful");
+            })
+            .catch(err => {
+              console.log("catch", err);
+              if (err) res.status(500).json({ error: err });
             });
         }
       );
