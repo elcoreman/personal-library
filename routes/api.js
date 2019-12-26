@@ -28,21 +28,21 @@ module.exports = app => {
         if (err) throw err;
         db.db("test2")
           .collection("library")
-          .insertOne({ title: req.body.title, commentcount: 0 }, (err, book) => {
-            if (err) throw err;
-            db.close();
-            res.json({ title: book.title, _id: book._id });
-          });
+          .insertOne(
+            { title: req.body.title, commentcount: 0 },
+            (err, book) => {
+              if (err) throw err;
+              db.close();
+              res.json({ title: book.title, _id: book._id });
+            }
+          );
       });
     })
 
     .delete((req, res) => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
-        console.log("error: ", err);
         if (err) throw err;
-        db = db.db("test2");
-        db.dropDatabase("test2", (err, res) => {
-          console.log("error: ", err);
+        db.db("test2").dropDatabase((err, result) => {
           if (err) throw err;
           db.close();
           res.send("complete delete successful");
@@ -61,7 +61,7 @@ module.exports = app => {
           .findOne({ _id: bookid }, (err, book) => {
             if (err) throw err;
             if (!book) res.send("no book exists");
-          console.log(book);
+            console.log(book);
             return book;
           })
           .then(book => {
