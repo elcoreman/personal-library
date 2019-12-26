@@ -120,16 +120,19 @@ module.exports = app => {
               .findOne({ _id: ObjectId(bookid) });
           })
           .then(book => {
-            client
-              .db("test2")
-              .collection(String(book._id))
-              .find({})
-              .toArray((err, comments) => {
-                if (err) throw err;
-                book.comments = comments;
-                client.close();
-                res.json(book);
-              });
+            return Promise.all([
+              book,
+              client
+                .db("test2")
+                .collection(String(book._id))
+                .find({})
+                .toArray()
+            ]);
+          })
+          .then(([book, comments]) => {
+            book.comments = comments;
+            client.close();
+            res.json(book);
           })
           .catch(err => {
             console.log("catch", err);
