@@ -39,11 +39,12 @@ module.exports = app => {
     .delete((req, res) => {
       MongoClient.connect(MONGODB_CONNECTION_STRING, (err, db) => {
         console.log("error: ", err);
-        //if (err) throw err;
+        if (err) throw err;
+        db = db.db("test2");
         db.dropDatabase("test2", (err, res) => {
           console.log("error: ", err);
-          //if (err) throw err;
-          //db.close();
+          if (err) throw err;
+          db.close();
           res.send("complete delete successful");
         });
       });
@@ -60,6 +61,7 @@ module.exports = app => {
           .findOne({ _id: bookid }, (err, book) => {
             if (err) throw err;
             if (!book) res.send("no book exists");
+          console.log(book);
             return book;
           })
           .then(book => {
@@ -71,7 +73,6 @@ module.exports = app => {
               });
           })
           .then(book => {
-            //if book
             db.db("test2")
               .collection(book._id)
               .find({})
