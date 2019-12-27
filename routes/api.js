@@ -8,15 +8,16 @@ const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
 var chaiHttp = require("chai-http");
 var chai = require("chai");
 var assert = chai.assert;
-var server = require("../server");
+chai.use(chaiHttp);
 
 module.exports = app => {
   app.route("/a").get((req, res) => {
     chai
-      .request(server)
-      .get("/api/books")
-      .end(function(err, res) {
-        res.send(assert.equal(res.status, 200));
+      .request(app)
+      .post("/api/books")
+      .send({ title: "test1" })
+      .end(function(err, result) {
+        console.log(result.status);
       });
   });
 
