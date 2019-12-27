@@ -11,13 +11,13 @@ var assert = chai.assert;
 chai.use(chaiHttp);
 
 module.exports = app => {
-  app.route("/a").get((req, res) => {
+  app.route("/aa").get((req, res) => {
     chai
       .request(app)
       .post("/api/books")
-      .send({ title: "test1" })
+      .send({})
       .end(function(err, result) {
-        console.log(result.status);
+        console.log(result.status, result.body);
       });
   });
 
@@ -44,7 +44,7 @@ module.exports = app => {
 
     .post((req, res) => {
       var title = req.body.title;
-      if (!title) return res.status(400).send("no title inserted");
+      if (!title) return res.status(400).text("no title inserted");
       MongoClient.connect(
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
