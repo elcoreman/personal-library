@@ -63,10 +63,8 @@ suite("Functional Tests", function() {
             .post("/api/books")
             .send({})
             .end(function(err, res) {
-              assert.equal(res.status, 200);
-              assert.isObject(res.body, "response should be an object");
-              assert.property(res.body, "title", "should contain title");
-              assert.property(res.body, "_id", "should contain _id");
+              assert.equal(res.status, 400);
+              assert.isObject(res.body, 'no title inserted');
               done();
             });
         });
