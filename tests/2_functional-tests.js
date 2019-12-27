@@ -47,7 +47,7 @@ suite("Functional Tests", function() {
           chai
             .request(server)
             .post("/api/books")
-            .send({ title: "test" })
+            .send({ title: "test book" })
             .end(function(err, res) {
               assert.equal(res.status, 200);
               assert.isObject(res.body, "response should be an object");
