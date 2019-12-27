@@ -44,7 +44,7 @@ module.exports = app => {
 
     .post((req, res) => {
       var title = req.body.title;
-      if (!title) return res.status(400).text("no title inserted");
+      if (!title) return res.status(400).send("no title inserted");
       MongoClient.connect(
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
