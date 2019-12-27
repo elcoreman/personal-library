@@ -17,7 +17,7 @@ module.exports = app => {
       .post("/api/books")
       .send({})
       .end(function(err, result) {
-        console.log(result.status, result.body);
+        console.log(typeof result.body);
       });
   });
 
