@@ -27,7 +27,7 @@ module.exports = app => {
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err) throw err;
+          if (err) return res.status(500).send(err);
           client
             .db("test2")
             .collection("library")
@@ -43,13 +43,12 @@ module.exports = app => {
 
     .post((req, res) => {
       var title = req.body.title;
-      if (!title) return res.status(400).json("no title inserted");
+      if (!title) return res.status(400).type("text").send("no title inserted");
       MongoClient.connect(
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err) throw err;
-
+          if (err) return res.status(500).send(err);
           client
             .db("test2")
             .collection("library")
@@ -80,14 +79,14 @@ module.exports = app => {
 
   app
     .route("/api/books/:id")
-    .get((req, res) => {
+    .get((req, res, next) => {
       var bookid = req.params.id;
       MongoClient.connect(
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err || !ObjectId.isValid(bookid)) throw err;
-          //if(!ObjectId.isValid(bookid)) return console.log("AAAA");
+          if (err) return res.status(500).send(err);
+          if(!ObjectId.isValid(bookid)) return next();
           client
             .db("test2")
             .collection("library")
@@ -122,10 +121,7 @@ module.exports = app => {
               if (err) res.status(500).json({ error: err });
             });
         }
-      ).catch(err => {
-        console.log("catch1", err);
-        if (err) res.status(500).json({ error: err });
-      });
+      );
     })
 
     .post((req, res) => {
@@ -135,7 +131,7 @@ module.exports = app => {
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err) throw err;
+          if (err) return res.status(500).send(err);
           return client
             .db("test2")
             .collection("library")
@@ -198,7 +194,7 @@ module.exports = app => {
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err) throw err;
+          if (err) return res.status(500).send(err);
           client
             .db("test2")
             .collection("library")

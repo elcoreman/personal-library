@@ -108,7 +108,8 @@ suite("Functional Tests", function() {
           .get("/api/books/1")
           .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.isObject(res.body, "response should be an object");
+            assert.isObject(res.body, "response should be string");
+            assert.equal(res.body, "Not Found");
             assert.property(res.body[0], "title", "body should contain title");
             assert.property(res.body[0], "_id", "body should contain _id");
             done();
