@@ -5,7 +5,21 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
 
+var chaiHttp = require("chai-http");
+var chai = require("chai");
+var assert = chai.assert;
+var server = require("../server");
+
 module.exports = app => {
+  app.route("/a").get((req, res) => {
+    chai
+      .request(server)
+      .get("/api/books")
+      .end(function(err, res) {
+        res.send(assert.equal(res.status, 200));
+      });
+  });
+
   app
     .route("/api/books")
     .get((req, res) => {
@@ -35,15 +49,14 @@ module.exports = app => {
         { useUnifiedTopology: true },
         (err, client) => {
           if (err) throw err;
-          
+
           client
             .db("test2")
             .collection("library")
-            .insertOne({ title, commentcount: 0 }, (err, result) => {return res.send("aaa");
+            .insertOne({ title, commentcount: 0 }, (err, result) => {
               if (err) throw err;
-            
               let book = result.ops[0];
-              //client.close();
+              client.close();
               res.json({ title: book.title, _id: book._id });
             });
         }
