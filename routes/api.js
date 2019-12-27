@@ -14,10 +14,9 @@ module.exports = app => {
   app.route("/aa").get((req, res) => {
     chai
       .request(app)
-      .post("/api/books")
-      .send({})
+      .get("/api/books/1")
       .end(function(err, result) {
-        console.log(typeof result.body);
+        console.log(result.status, result.body);
       });
   });
 
@@ -87,7 +86,8 @@ module.exports = app => {
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
         (err, client) => {
-          if (err) throw err;
+          if (err || !ObjectId.isValid(bookid)) throw err;
+          //if(!ObjectId.isValid(bookid)) return console.log("AAAA");
           client
             .db("test2")
             .collection("library")
@@ -122,7 +122,10 @@ module.exports = app => {
               if (err) res.status(500).json({ error: err });
             });
         }
-      );
+      ).catch(err => {
+        console.log("catch1", err);
+        if (err) res.status(500).json({ error: err });
+      });
     })
 
     .post((req, res) => {

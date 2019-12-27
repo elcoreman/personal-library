@@ -38,7 +38,7 @@ suite("Functional Tests", function() {
   /*
    * ----[END of EXAMPLE TEST]----
    */
-
+  var id;
   suite("Routing tests", function() {
     suite(
       "POST /api/books with title => create book object/expect book object",
@@ -53,6 +53,7 @@ suite("Functional Tests", function() {
               assert.isObject(res.body, "response should be an object");
               assert.property(res.body, "title", "should contain title");
               assert.property(res.body, "_id", "should contain _id");
+              id = res.body._id;
               done();
             });
         });
@@ -102,11 +103,29 @@ suite("Functional Tests", function() {
 
     suite("GET /api/books/[id] => book object with [id]", function() {
       test("Test GET /api/books/[id] with id not in db", function(done) {
-        //done();
+        chai
+          .request(server)
+          .get("/api/books/1")
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, "response should be an object");
+            assert.property(res.body[0], "title", "body should contain title");
+            assert.property(res.body[0], "_id", "body should contain _id");
+            done();
+          });
       });
 
       test("Test GET /api/books/[id] with valid id in db", function(done) {
-        //done();
+        chai
+          .request(server)
+          .get("/api/books/" + id)
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, "response should be an object");
+            assert.property(res.body[0], "title", "body should contain title");
+            assert.property(res.body[0], "_id", "body should contain _id");
+            done();
+          });
       });
     });
 
