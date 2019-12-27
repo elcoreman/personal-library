@@ -107,11 +107,9 @@ suite("Functional Tests", function() {
           .request(server)
           .get("/api/books/1")
           .end(function(err, res) {
-            assert.equal(res.status, 200);
+            assert.equal(res.status, 404);
             assert.isObject(res.body, "response should be string");
             assert.equal(res.body, "Not Found");
-            assert.property(res.body[0], "title", "body should contain title");
-            assert.property(res.body[0], "_id", "body should contain _id");
             done();
           });
       });
@@ -123,8 +121,8 @@ suite("Functional Tests", function() {
           .end(function(err, res) {
             assert.equal(res.status, 200);
             assert.isObject(res.body, "response should be an object");
-            assert.property(res.body[0], "title", "body should contain title");
-            assert.property(res.body[0], "_id", "body should contain _id");
+            assert.property(res.body, "title", "body should contain title");
+            assert.property(res.body, "_id", "body should contain _id");
             done();
           });
       });
@@ -134,7 +132,17 @@ suite("Functional Tests", function() {
       "POST /api/books/[id] => add comment/expect book object with id",
       function() {
         test("Test POST /api/books/[id] with comment", function(done) {
-          //done();
+          chai
+            .request(server)
+            .post("/api/books/" + id)
+            .send({ comment: "test comment" })
+            .end(function(err, res) {
+              assert.equal(res.status, 200);
+              assert.isObject(res.body, "response should be an object");
+              assert.property(res.body, "title", "body should contain title");
+              assert.property(res.body, "_id", "body should contain _id");
+              done();
+            });
         });
       }
     );

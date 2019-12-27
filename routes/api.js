@@ -5,21 +5,7 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 const MONGODB_CONNECTION_STRING = process.env.MLAB_URI;
 
-var chaiHttp = require("chai-http");
-var chai = require("chai");
-var assert = chai.assert;
-chai.use(chaiHttp);
-
 module.exports = app => {
-  app.route("/aa").get((req, res) => {
-    chai
-      .request(app)
-      .get("/api/books/1")
-      .end(function(err, result) {
-        console.log(result.status, result.body);
-      });
-  });
-
   app
     .route("/api/books")
     .get((req, res) => {
@@ -43,7 +29,11 @@ module.exports = app => {
 
     .post((req, res) => {
       var title = req.body.title;
-      if (!title) return res.status(400).type("text").send("no title inserted");
+      if (!title)
+        return res
+          .status(400)
+          .type("text")
+          .send("no title inserted");
       MongoClient.connect(
         MONGODB_CONNECTION_STRING,
         { useUnifiedTopology: true },
@@ -86,7 +76,7 @@ module.exports = app => {
         { useUnifiedTopology: true },
         (err, client) => {
           if (err) return res.status(500).send(err);
-          if(!ObjectId.isValid(bookid)) return next();
+          if (!ObjectId.isValid(bookid)) return next();
           client
             .db("test2")
             .collection("library")
