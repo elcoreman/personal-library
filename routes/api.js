@@ -40,9 +40,8 @@ module.exports = app => {
             .collection("library")
             .insertOne({ title, commentcount: 0 }, (err, result) => {
               if (err) throw err;
-            let book = result.ops[0];
-              client.close();
-            console.log(book);
+              let book = result.ops[0];
+              //client.close();
               res.json({ title: book.title, _id: book._id });
             });
         }
