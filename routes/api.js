@@ -38,9 +38,11 @@ module.exports = app => {
           client
             .db("test2")
             .collection("library")
-            .insertOne({ title, commentcount: 0 }, (err, book) => {
+            .insertOne({ title, commentcount: 0 }, (err, result) => {
               if (err) throw err;
+            let book = result.ops[0];
               client.close();
+            console.log(book);
               res.json({ title: book.title, _id: book._id });
             });
         }
