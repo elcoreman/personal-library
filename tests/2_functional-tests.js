@@ -65,8 +65,8 @@ suite("Functional Tests", function() {
             .send({})
             .end(function(err, res) {
               assert.equal(res.status, 400);
-              assert.isString(res.body, "response should be string");
-              assert.equal(res.body, "no title inserted");
+              assert.isString(res.text, "response should be string");
+              assert.equal(res.text, "no title inserted");
               done();
             });
         });
@@ -108,8 +108,8 @@ suite("Functional Tests", function() {
           .get("/api/books/1")
           .end(function(err, res) {
             assert.equal(res.status, 404);
-            assert.isObject(res.body, "response should be string");
-            assert.equal(res.body, "Not Found");
+            assert.isString(res.text, "response should be string");
+            assert.equal(res.text, "Not Found");
             done();
           });
       });
